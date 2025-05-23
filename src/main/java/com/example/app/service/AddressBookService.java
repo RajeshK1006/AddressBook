@@ -1,6 +1,7 @@
 package com.example.app.service;
 
 import com.example.app.dto.AddressBookDTO;
+import com.example.app.exception.AddressBookException;
 import com.example.app.model.AddressBook;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,10 @@ public class AddressBookService implements IAddressBookService {
         return addressList.stream()
                 .filter(e -> e.getId() == id)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> {
+                    log.warn("AddressBook entry not found for ID: {}", id);
+                    return new AddressBookException("AddressBook entry not found for ID: " + id);
+                });
     }
 
     @Override
@@ -42,19 +46,16 @@ public class AddressBookService implements IAddressBookService {
     public AddressBook updateEntry(int id, AddressBookDTO dto) {
         log.info("Updating address book entry with ID: {}", id);
         AddressBook existing = getEntryById(id);
-        if (existing != null) {
-            existing.setName(dto.getName());
-            existing.setAddress(dto.getAddress());
-            existing.setPhone(dto.getPhone());
-        } else {
-            log.warn("Attempted to update non-existent entry with ID: {}", id);
-        }
+        existing.setName(dto.getName());
+        existing.setAddress(dto.getAddress());
+        existing.setPhone(dto.getPhone());
         return existing;
     }
 
     @Override
     public void deleteEntry(int id) {
         log.info("Deleting address book entry with ID: {}", id);
-        addressList.removeIf(e -> e.getId() == id);
+        AddressBook existing = getEntryById(id);
+        addressList.remove(existing);
     }
 }
