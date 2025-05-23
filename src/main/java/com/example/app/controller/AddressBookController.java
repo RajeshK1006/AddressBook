@@ -3,6 +3,7 @@ package com.example.app.controller;
 import com.example.app.dto.AddressBookDTO;
 import com.example.app.model.AddressBook;
 import com.example.app.service.IAddressBookService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,13 +33,13 @@ public class AddressBookController {
     }
 
     @PostMapping
-    public ResponseEntity<AddressBook> create(@RequestBody AddressBookDTO dto) {
+    public ResponseEntity<AddressBook> create(@Valid @RequestBody AddressBookDTO dto) {
         log.info("POST /addressbook called with DTO: {}", dto);
         return ResponseEntity.ok(service.createEntry(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable int id, @RequestBody AddressBookDTO dto) {
+    public ResponseEntity<?> update(@PathVariable int id, @Valid @RequestBody AddressBookDTO dto) {
         log.info("PUT /addressbook/{} called with DTO: {}", id, dto);
         AddressBook updated = service.updateEntry(id, dto);
         return (updated != null) ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
